@@ -1,16 +1,8 @@
-# social_app
+# hello there ! 
 
-A new Flutter project.
+# in this project I am trying to apply firebase concepts by creating social app application , it will done on any device anytime !
 
-## Getting Started
+# the project is still under creation , but for now, I have already done creating/register user , adding posts , put likes , comments , still there's much things left to handle :)
 
-This project is a starting point for a Flutter application.
+but there's a good news , it's the last project on the course , so , will have time to work on other features on the already published projects !
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
