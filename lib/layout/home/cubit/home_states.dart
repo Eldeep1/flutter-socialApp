@@ -85,3 +85,9 @@ class AddCommentErrorState extends HomeStates{}
 class GetAllUsersLoadingState extends HomeStates{}
 class GetAllUsersSuccessState extends HomeStates{}
 class GetAllUsersErrorState extends HomeStates{}
+
+class SendMessageSuccessState extends HomeStates{}
+class SendMessageErrorState extends HomeStates{}
+
+class GetMessageSuccessState extends HomeStates{}
+class GetMessageErrorState extends HomeStates{}

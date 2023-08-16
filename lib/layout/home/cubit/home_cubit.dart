@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:social_app/layout/home/cubit/home_states.dart';
 import 'package:social_app/models/comments_model/comments_model.dart';
+import 'package:social_app/models/message_model/message_model.dart';
 import 'package:social_app/models/post_model/post_model.dart';
 import 'package:social_app/models/user_model/user_model.dart';
 import 'package:social_app/modules/chats/chats_screen.dart';
@@ -94,13 +95,11 @@ class HomeCubit extends Cubit<HomeStates> {
   void changeBottomNav(int index) {
     if (index == 2) {
       emit(HomeAddNewPostState());
-    } else if(index==1) {
+    } else if (index == 1) {
       currentIndex = index;
       getUsers();
       emit(HomeChangeBottomNavState());
-
-    }
-    else {
+    } else {
       currentIndex = index;
       emit(HomeChangeBottomNavState());
     }
@@ -372,7 +371,7 @@ class HomeCubit extends Cubit<HomeStates> {
     });
   }
 
-  void addComment(CommentsModel model,String postId) {
+  void addComment(CommentsModel model, String postId) {
     emit(AddCommentLoadingState());
     FirebaseFirestore.instance
         .collection('posts')
@@ -380,33 +379,107 @@ class HomeCubit extends Cubit<HomeStates> {
         .collection('comments')
         .add(model.toMap())
         .then((value) {
-          // getPosts();
+      // getPosts();
       emit(AddCommentSuccessState());
-
     }).catchError((error) {
       print(error);
       emit(AddCommentErrorState());
-
     });
   }
 
-  List<UserModel> users=[];
+  List<UserModel> users = [];
 
-  void getUsers(){
-    if(users.length==0) {
+  void getUsers() {
+    if (users.length == 0) {
       emit(GetAllUsersLoadingState());
 
-FirebaseFirestore.instance.collection('users').get().then((value) {
-  value.docs.forEach((element) {
-    if(element.data()['uId']!=model?.uId)
-    users.add(UserModel.fromJson(element.data(),),);
-  });
-  emit(GetAllUsersSuccessState());
+      FirebaseFirestore.instance.collection('users').get().then((value) {
+        value.docs.forEach((element) {
+          if (element.data()['uId'] != model?.uId)
+            users.add(
+              UserModel.fromJson(
+                element.data(),
+              ),
+            );
+        });
+        emit(GetAllUsersSuccessState());
+      }).catchError((error) {
+        print(error);
+        emit(GetAllUsersErrorState());
+      });
+    }
+  }
 
-}).catchError((error){
-  print(error);
-  emit(GetAllUsersErrorState());
+  void sendMessage({
+    required String dateTime,
+    required String receiverId,
+    required String text,
+  }) {
+    MessageModel messageModel = MessageModel(
+      dateTime: dateTime,
+      text: text,
+      receiverId: receiverId,
+      senderId: model?.uId,
+    );
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(model?.uId)
+        .collection('chats')
+        .doc(messageModel.receiverId)
+        .collection('messages')
+        .add(messageModel.toMap())
+        .then((value) {
+      emit(GetMessageSuccessState());
+    }).catchError((error) {
+      print(error);
+      emit(GetMessageErrorState());
+    });
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(messageModel.receiverId)
+        .collection('chats')
+        .doc(model?.uId)
+        .collection('messages')
+        .add(messageModel.toMap())
+        .then((value) {
+      messageToBeSent='';
+      emit(GetMessageSuccessState());
+    }).catchError((error) {
+      print(error);
+      emit(GetMessageErrorState());
+    });
+  }
 
-});}
+  List<MessageModel> messages = [];
+  int x=0;
+  int y =0;
+  String messageToBeSent='';
+
+  void getMessages({
+    required String? receiverId,
+  }) {
+    //get the sent messages
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(model?.uId)
+        .collection('chats')
+        .doc(receiverId)
+        .collection('messages').orderBy('dateTime')
+        .snapshots().listen((event) {
+          messages=[];
+          event.docs.forEach((element) {
+            messages.add(MessageModel.fromJson(element.data()));
+            // print(element.data());
+          });
+          x=messages.length;
+          if(x!=y) {
+            print('the message length is : ');
+            print(messages.length.toString());
+            print('aaaaaaaaaaaaaaaa');
+            y=x;
+            emit(GetMessageSuccessState());
+          }
+    });
+
   }
 }
